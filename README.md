@@ -1,8 +1,6 @@
 CUDA Stream Compaction
 ======================
 
-**University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 2**
-
 * Anthony Ge
   * [LinkedIn](https://www.linkedin.com/in/anthonyge/), [personal website](https://www.geant.pro)
 * Tested on: Windows 11, i9-13900H @ 2600 Mhz 16GB, NVIDIA 
@@ -10,6 +8,8 @@ GeForce RTX 4070 Laptop GPU 8GB (personal)
 
 
 ## Parallel Algorithms Introduction
+This project was initially a homework project for CIS 5650, GPU Programming at the University of Pennsylvania. I've since then reworked the base-code a bit and tested a new scan-implementation. Profiling to come soon!
+
 For this assignment, I implemented several parallel algorithms in CUDA, comparing results between CPU and GPU methods. The algoriths, which I'll describe, are:
 - CPU Scan
 - CPU Stream Compaction
