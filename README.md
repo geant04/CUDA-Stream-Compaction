@@ -6,9 +6,11 @@ CUDA Stream Compaction
 * Tested on: Windows 11, i9-13900H @ 2600 Mhz 16GB, NVIDIA 
 GeForce RTX 4070 Laptop GPU 8GB (personal)
 
+![](img/teaser.png)
+*Added Efficient Warp Shared Scan, seems to be pretty close to thrust.*
 
 ## Parallel Algorithms Introduction
-This project was initially a homework project for CIS 5650, GPU Programming at the University of Pennsylvania. I've since then reworked the base-code a bit and tested a new scan-implementation. Profiling to come soon!
+This project was initially a homework project for CIS 5650, GPU Programming at the University of Pennsylvania. I've since then reworked the base-code a bit and tested a new scan-implementation. **Profiling for warp-shared scan to come soon!**
 
 For this assignment, I implemented several parallel algorithms in CUDA, comparing results between CPU and GPU methods. The algoriths, which I'll describe, are:
 - CPU Scan
