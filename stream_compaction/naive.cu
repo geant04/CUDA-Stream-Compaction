@@ -11,6 +11,12 @@ namespace StreamCompaction {
             static PerformanceTimer timer;
             return timer;
         }
+
+        float getGpuTime()
+        {
+            return timer().getGpuElapsedTimeForPreviousOperation();
+        }
+
         // TODO: __global__
         __global__ void naiveScan(int n, int stride, int *dev_odata, int *dev_idata)
         {

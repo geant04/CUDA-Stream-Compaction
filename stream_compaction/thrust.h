@@ -6,6 +6,8 @@ namespace StreamCompaction {
     namespace Thrust {
         StreamCompaction::Common::PerformanceTimer& timer();
 
+        float getGpuTime();
+
         void scan(int n, int *odata, const int *idata);
     }
 }

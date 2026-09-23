@@ -24,9 +24,13 @@ void printDesc(const char *desc) {
 }
 
 template<typename T>
-void printCmpResult(int n, T *a, T *b) {
+bool printCmpResult(int n, T *a, T *b) {
+    bool result = cmpArrays(n, a, b);
+
     printf("    %s \n",
-            cmpArrays(n, a, b) ? "FAIL VALUE" : "passed");
+            result ? "FAIL VALUE" : "passed");
+
+    return result;
 }
 
 template<typename T>

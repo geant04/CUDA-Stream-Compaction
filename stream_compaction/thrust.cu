@@ -14,6 +14,12 @@ namespace StreamCompaction {
             static PerformanceTimer timer;
             return timer;
         }
+
+        float getGpuTime()
+        {
+            return timer().getGpuElapsedTimeForPreviousOperation();
+        }
+
         /**
          * Performs prefix-sum (aka scan) on idata, storing the result into odata.
          */

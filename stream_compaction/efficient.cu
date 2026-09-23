@@ -18,6 +18,11 @@ namespace StreamCompaction {
             return timer;
         }
 
+        float getGpuTime()
+        {
+            return timer().getGpuElapsedTimeForPreviousOperation();
+        }
+
         __global__ void upsweep(int n, int stride, int* dev_odata)
         {
             int index = blockDim.x * blockIdx.x + threadIdx.x;

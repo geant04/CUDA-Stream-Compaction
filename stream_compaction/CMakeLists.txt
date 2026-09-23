@@ -3,6 +3,7 @@ set(headers
     "cpu.h"
     "naive.h"
     "efficient.h"
+    "efficientShared.h"
     "thrust.h"
     )
 
@@ -11,6 +12,7 @@ set(sources
     "cpu.cu"
     "naive.cu"
     "efficient.cu"
+    "efficientShared.cu"
     "thrust.cu"
     )
 
@@ -30,3 +32,13 @@ else()
 endif()
 target_compile_options(stream_compaction PRIVATE "$<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANGUAGE:CUDA>>:-G;-src-in-ptx>")
 target_compile_options(stream_compaction PRIVATE "$<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>>:-lineinfo;-src-in-ptx>")
+
+if(MSVC)
+
+    target_compile_options(stream_compaction PRIVATE 
+
+        "$<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=/Zc:preprocessor>"
+
+    )
+
+endif()

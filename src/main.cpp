@@ -1,20 +1,14 @@
-/**
- * @file      main.cpp
- * @brief     Stream compaction test program
- * @authors   Kai Ninomiya
- * @date      2015
- * @copyright University of Pennsylvania
- */
-
-#include <cstdio>s
+#include <cstdio>
 #include <stream_compaction/cpu.h>
 #include <stream_compaction/naive.h>
 #include <stream_compaction/efficient.h>
+#include <stream_compaction//efficientShared.h>
 #include <stream_compaction/thrust.h>
 #include "testing_helpers.hpp"
+#include <functional>
 
-const int SIZE = 1 << 14; // feel free to change the size of array
-const int NPOT = SIZE - 3; // Non-Power-Of-Two
+const int SIZE = 1 << 24;
+const int NPOT = SIZE - 3;
 int *a = new int[SIZE];
 int *b = new int[SIZE];
 int *c = new int[SIZE];
@@ -25,6 +19,84 @@ int *c = new int[SIZE];
 
 #define PROFILING 0
 #define PROFILE_NON_POWER_OF_TWO 1
+
+struct TestParams
+{
+    const int arraySize;
+    int* inArray;
+    int* outArray;
+};
+
+void testScanPow2(
+    TestParams* testParams,
+    const char* msg, 
+    void (*scanFunction)(int, int*, const int*),
+    float (*getTimeFunction)())
+{
+    zeroArray(testParams->arraySize, testParams->outArray);
+    printDesc(msg);
+    scanFunction( testParams->arraySize, testParams->outArray, testParams->inArray );
+    printElapsedTime( getTimeFunction(), "(CUDA Measured)");
+
+    int* groundTruth = b;
+    if (printCmpResult(SIZE, groundTruth, testParams->outArray) )
+    {
+        printArray(SIZE, testParams->outArray, true);
+    }
+}
+
+int main(int argc, char* argv[]) {
+    printf("\n");
+    printf("****************\n");
+    printf("** SCAN TESTS **\n");
+    printf("****************\n");
+
+    int* groundTruth = b;
+    int* generatedArrayData = a;
+    int* outArrayData = c;
+    TestParams testParams = { SIZE, generatedArrayData, outArrayData };
+
+    {
+        // Test case generation
+        // Leave a 0 at the end to test that edge case
+        genArray(SIZE - 1, a, 50);
+        generatedArrayData[SIZE - 1] = 0;
+        printArray(SIZE, generatedArrayData, true);
+
+        {
+            zeroArray(SIZE, groundTruth);
+            printDesc("cpu scan, power-of-two");
+            StreamCompaction::CPU::scan(SIZE, groundTruth, generatedArrayData);
+            printElapsedTime(StreamCompaction::CPU::timer().getCpuElapsedTimeForPreviousOperation(), "(std::chrono Measured)");
+            printArray(SIZE, groundTruth, true);
+        }
+
+        // TODO: do some neat sorting tests
+        // TODO: do some neat mat-mul kernel tests
+    }
+
+    // Test scan with GPU implementation
+    {
+        testScanPow2( &testParams, "naive scan, power-of-two", 
+            &StreamCompaction::Naive::scan, &StreamCompaction::Naive::getGpuTime );
+        testScanPow2( &testParams, "work-efficient scan, power-of-two", 
+            &StreamCompaction::Efficient::scan, &StreamCompaction::Efficient::getGpuTime );
+        testScanPow2( &testParams, "thrust scan, power-of-two", 
+            &StreamCompaction::Thrust::scan, &StreamCompaction::Thrust::getGpuTime );
+        testScanPow2( &testParams, "efficient warp shared scan, power-of-two", 
+            &StreamCompaction::EfficientShared::scan_efficient_warp_shared, &StreamCompaction::EfficientShared::getGpuTime );
+    }
+
+    
+    system("pause"); // stop Win32 console from closing on exit
+    delete[] a;
+    delete[] b;
+    delete[] c;
+}
+
+
+
+// -------------------------------- LEGACY CODE DOWN BELOW -------------------------------
 
 void getAvgTest(int trials)
 {
@@ -108,19 +180,9 @@ void getAvgTest(int trials)
     std::cout << "   average elapsed time: " << avgThrustTime / trials << "ms    " << "(CUDA Measured)" << std::endl;
 }
 
-
-int main(int argc, char* argv[]) {
-    // Scan tests
-
-    printf("\n");
-    printf("****************\n");
-    printf("** SCAN TESTS **\n");
-    printf("****************\n");
-
-    genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
-    a[SIZE - 1] = 0;
-    //printArray(SIZE, a, true);
-
+// UNUSED
+static void legacyTestingSuite()
+{
     // initialize b using StreamCompaction::CPU::scan you implement
     // We use b for further comparison. Make sure your StreamCompaction::CPU::scan is correct.
     // At first all cases passed because b && c are all zeroes.
@@ -275,9 +337,5 @@ int main(int argc, char* argv[]) {
     //printArray(count, c, true);
     printCmpLenResult(count, expectedNPOT, b, c);
 
-#endif // PROFILING
-    system("pause"); // stop Win32 console from closing on exit
-    delete[] a;
-    delete[] b;
-    delete[] c;
+    #endif // PROFILING
 }
